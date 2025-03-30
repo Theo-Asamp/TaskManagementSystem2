@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Task Management</title>
+    <link rel="stylesheet" href="/css/global.css">
+</head>
+<body>
+    <header class="navbar">
+        <h1 class="navbar_title">taskly</h1>
+    </header>
+
+    <div class="container">
+        <div class="register-section">
+            <h2 class="register-title">Register</h2>
+            <p>Create an account to manage your tasks efficiently.</p>
+
+
+            <form class="login-form" action="register.php" method="POST">
+                <label for="first_name">First Name<span style="color: red;">*</span></label>
+                <input type="text" id="first_name" name="first_name" required>
+
+                <label for="last_name">Last Name<span style="color: red;">*</span></label>
+                <input type="text" id="last_name" name="last_name" required>
+
+                <label for="phone">Phone</label>
+                <input type="text" id="phone" name="phone">
+
+                <label for="role">Role<span style="color: red;">*</span></label>
+                <select id="role" name="role" class="role-select"required>
+                    <option value="employee">Employee</option>
+                    <option value="admin">Admin</option>
+                </select>
+
+                <label for="email">Email<span style="color: red;">*</span></label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="password">Password<span style="color: red;">*</span></label>
+                <input type="password" id="password" name="password" required>
+
+                <button type="submit" class="btn btn--register">Register</button>
+            </form>                        
+
+        <p>Already have an account? <a href="login.html">Login</a></p>
+        </div>
+    </div>
+</body>
+</html>
