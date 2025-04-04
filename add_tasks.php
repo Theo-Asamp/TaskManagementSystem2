@@ -1,51 +1,43 @@
 <?php
-// Include the database connection
+session_start();
 include('db.php');
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Validate and sanitize input
-    $taskTitle = trim($_POST['taskTitle']);
-    $taskDescription = trim($_POST['taskDescription']);
-    $taskDeadline = $_POST['taskDeadline'];
-    
-    // Check if list_id exists in URL
-    if (!isset($_GET['list_id']) || empty($_GET['list_id'])) {
-        die("Error: Task list ID is missing.");
-    }
+$userId = $_SESSION['user_id'] ?? 1;
 
-    $listId = (int) $_GET['list_id']; // Sanitize list ID
+if (!isset($_GET['tasklist']) || empty($_GET['tasklist'])) {
+    die("Task list name missing.");
+}
 
-    if (!empty($listId)) {
-        $stmt = $conn->prepare("INSERT INTO Task (Task_Title, Task_Description, Task_Deadline, List_ID) 
-                                VALUES (:taskTitle, :taskDescription, :taskDeadline, :listId)");
-        $stmt->bindParam(':taskTitle', $taskTitle);
-        $stmt->bindParam(':taskDescription', $taskDescription);
-        $stmt->bindParam(':taskDeadline', $taskDeadline);
-        $stmt->bindParam(':listId', $listId);
-        $stmt->execute();
-    } else {
-        die("Error: List ID is missing. Task cannot be added.");
-    }
-    
+$taskListName = $_GET['tasklist'];
+
+// Get the List_ID from TaskList_Name
+$stmt = $conn->prepare("SELECT List_ID FROM Task_List WHERE TaskList_Name = ? AND User_ID = ?");
+$stmt->execute([$taskListName, $userId]);
+$taskList = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$taskList) {
+    die("Task list not found.");
+}
+
+$listId = $taskList['List_ID'];
+
+if (isset($_POST['createTask'])) {
+    $title = $_POST['taskTitle'];
+    $desc = $_POST['taskDesc'];
+    $deadline = $_POST['taskDeadline'];
+
+    $stmt = $conn->prepare("INSERT INTO Task (Task_Title, Task_Description, Task_Deadline, List_ID) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$title, $desc, $deadline, $listId]);
+
+    header("Location: tasks.php");
+    exit();
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Task</title>
-</head>
-<body>
-    <h2>Create Task</h2>
-
-    
-    <form method="POST">
-        <input type="text" name="taskTitle" placeholder="Task Title" required>
-        <textarea name="taskDescription" placeholder="Task Description" required></textarea>
-        <input type="date" name="taskDeadline" required>
-        <button type="submit" name="createTask">Create Task</button>
-    </form>
-</body>
-</html>
+<!-- Add Task Form -->
+<form method="POST">
+    <input type="text" name="taskTitle" placeholder="Task Title" required>
+    <input type="text" name="taskDesc" placeholder="Task Description" required>
+    <input type="date" name="taskDeadline" required>
+    <button type="submit" name="createTask">Create Task</button>
+</form>
