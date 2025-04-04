@@ -5,6 +5,13 @@
     font-family: Arial, sans-serif;
 }
 
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+
 .navbar {
     color: black;
     display: flex;
@@ -15,6 +22,13 @@
 }
 .navbar_title {
     font-size: 24px;
+    font-weight: bold;
+    color: #7a35ea;
+    text-decoration: none;
+}
+
+.navbar_title2 {
+    font-size: 15px;
     font-weight: bold;
     color: #7a35ea;
     text-decoration: none;
@@ -34,6 +48,9 @@
 
 .navbar-index:hover {
     color: #7a35ea;
+}
+.intro-content{
+    flex: 1;
 }
 
 .intro-section {
@@ -95,6 +112,32 @@
     margin-bottom: 15px;
     padding: 10px 90px;
 }
+
+.intro-content-container {
+    display: flex;
+    align-items: center;
+    gap: 50px; 
+    max-width: 1200px;
+    padding: 20px;
+    margin: 0 auto;
+
+}
+
+.intro-content-container p {
+    flex: 1;
+    font-size: 20px;
+    line-height: 1.5;
+    max-width: 700px;
+    text-decoration: none;
+}
+
+.intro-content-container img {
+    width: 500px;
+    height: auto;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
 .index-button{
     padding: 20px 100px;
     border-radius: 30px;
@@ -118,26 +161,25 @@
     background-color: #333;
 }
 
-
-
-.container {
+.login-container {
     display: flex;
-    height: 100vh;
     justify-content: center;
     align-items: center;
-    padding-bottom: 45px;
+    margin-top: 150px;
 }
 
 .login-section h2 {
-    font-size: 28px;
+    font-size: 35px;
     color: #7a35ea;
     margin-bottom: 10px;
+    text-align: center;
 }
 
 .login-section p {
-    font-size: 14px;
+    font-size: 20px;
     color: #555;
     margin-bottom: 30px;
+    text-align: center;
 }
 
 .login-form label {
@@ -187,7 +229,12 @@
     margin-bottom: 10px;
     text-align: center;
 }
-
+.register-container {
+    display: flex;
+    margin-top: 150px;
+    justify-content: center;
+    align-items: center;
+}
 .register-section h2 {
     font-size: 28px;
     color: #7a35ea;
@@ -226,11 +273,221 @@
     background-color: #f9f9f9;
     color: #333;
 }
-.footer{
-background-color: #7a35ea;
-text-align: center;
-padding: 15px;
+
+.container{
+    display: flex;
 }
+
+.sidebar{
+    width: 250px;
+    min-height: 100vh;
+    background-color: #8f63d5;
+}
+
+.sidebar ul {
+    margin-top: 20px;
+    list-style: none;
+}
+
+.sidebar ul li {
+    font-size: 16px;
+    padding: 20px 0px;
+    padding-left: 50px;
+    transition: 500ms background;
+}
+
+.sidebar ul li:hover {
+    background: #8953df;
+}
+
+.sidebar ul li a {
+    text-decoration: none;
+    color: #eee;
+    cursor: pointer;
+    letter-spacing: 1px;
+}
+
+.sidebar ul li a i {
+    display: inline-block;
+    padding-right: 10px;
+    font-size: 20px;
+}
+
+.user-profile {
+    text-align: center;
+    padding-left: 10px;
+    padding-top: 25px;
+}
+
+.user-profile img {
+    width: 100px;
+    border-radius: 50%;
+}
+
+.user-profile h4 {
+    color: #ccc;
+    padding: 5px 0;
+}
+
+.main-content {
+    width: 100%;
+    background-color: #eae7ee;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.task-content {
+    width: 100%;
+    background-color: #eae7ee;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    text-align: center;
+    flex-direction: column;
+    padding: 20px;
+}
+.task-container h1{
+    font-size: 24px;
+}
+
+.task-container p {
+    font-size: 20px;
+}
+.task-container button{
+    border-radius: 20px;
+    background-color: #945eeb;
+    padding: 10px 20px;
+    margin-top: 15px;
+}
+
+.manage-tasks-btn{
+    padding: 20px 30px;
+    background-color: #7a35ea;
+    color:#ddd;
+    border-radius: 30px;
+    margin-top: 40px;
+}
+.home-box h1{
+    color: #000000;
+    font-size: 30px;
+}
+
+.home-box p{
+    color: #000000;
+    font-size: 20px;
+    margin-top: 10px;
+}
+
+.footer {
+    background-color: #7a35ea;
+    text-align: center;
+    padding: 15px;
+    width: 100%;
+    margin-top: auto;
+}
+
+.profile-page__content {
+    padding: 20px;
+    width: 100%;
+}
+
+.profile-page_section {
+    width: 100%;
+    max-width: 500px; 
+    margin-top: 20px;
+}
+
+.profile-page__form {
+    display: flex;
+    flex-direction: column; 
+    gap: 15px; 
+    width: 100%;
+}
+
+.profile-page__label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.profile-page__input {
+    padding: 10px 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    width: 100%;
+}
+
+.btn--update {
+    padding: 12px;
+    background-color: #8953df;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+}
+
+.btn--update:hover {
+    background-color: #7a35ea;
+}
+
+.add-tasklist input{
+    padding: 10px 20px;
+    border-radius: 5px;
+    border-color: #000000;
+
+}
+
+.tasklist-view {
+    display: flex;            
+    flex-wrap: wrap;          
+    gap: 20px;                
+    justify-content: flex-start; 
+    margin: 20px 0;
+}
+
+
+.task-list-item {
+    background-color: #fff;      
+    border: 1px solid #ddd;        
+    border-radius: 8px;          
+    padding: 15px;                 
+    width: 30%;                    
+    min-width: 250px;              
+}
+
+
+.task-list-item h4 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.task-list-item p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.task-list-item a {
+    display: inline-block;
+    font-size: 14px;
+    color: #007BFF; 
+    text-decoration: none;
+}
+
+.task-list-item a:hover {
+    text-decoration: underline;
+}
+
 
 .footer p{
     font-size: 15px;
@@ -250,5 +507,14 @@ padding: 15px;
 
     .intro-section_content {
         padding: 20px;
+    }
+
+    .tasklist-view {
+        flex-direction: column;   /* Stack items vertically */
+        align-items: center;      /* Center align items */
+    }
+
+    .task-list-item {
+        width: 80%;               /* Make the task list items take up most of the screen */
     }
 }
