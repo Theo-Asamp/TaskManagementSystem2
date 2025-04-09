@@ -2,6 +2,8 @@
 session_start();
 include 'db.php'; // Include the database connection file
 
+$userId = $_SESSION['user_id'] ?? 1;
+
 // Check if the user is logged in (check if first name and last name are set in the session)
 if (!isset($_SESSION['User_Fname'])) {
     header("Location: login.php"); // Redirect to login if not logged in

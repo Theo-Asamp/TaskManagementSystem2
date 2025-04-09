@@ -2,39 +2,79 @@
 session_start();
 include('db.php');
 
+// Get user ID
 $userId = $_SESSION['user_id'] ?? 1;
 
-if (!isset($_GET['name'])) {
-    die("No task list name provided.");
+// Validate list_id from query
+if (!isset($_GET['list_id']) || !is_numeric($_GET['list_id'])) {
+    die("No task list ID provided.");
 }
 
-$taskListName = $_GET['name'];
+$listId = $_GET['list_id'];
 
-// Fetch task list by name
-$stmt = $conn->prepare("SELECT * FROM Task_List WHERE TaskList_Name = ? AND User_ID = ?");
-$stmt->execute([$taskListName, $userId]);
+// Fetch task list by ID and check ownership
+$stmt = $conn->prepare("SELECT * FROM Task_List WHERE List_ID = ? AND User_ID = ?");
+$stmt->execute([$listId, $userId]);
 $taskList = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$taskList) {
-    die("Task list not found.");
+    die("Task list not found or unauthorized access.");
 }
-
-// Update task list
+  
+// Handle update
 if (isset($_POST['updateTaskList'])) {
-    $newName = $_POST['taskListName'];
-    $newDesc = $_POST['taskListDesc'];
+    $newName = $_POST['taskListName'] ?? '';
+    $newDesc = $_POST['taskListDesc'] ?? '';
 
-    $stmt = $conn->prepare("UPDATE Task_List SET TaskList_Name = ?, TaskList_Description = ? WHERE TaskList_Name = ? AND User_ID = ?");
-    $stmt->execute([$newName, $newDesc, $taskListName, $userId]);
+    if (!empty($newName) && !empty($newDesc)) {
+        $stmt = $conn->prepare("UPDATE Task_List SET TaskList_Name = ?, TaskList_Description = ? WHERE List_ID = ? AND User_ID = ?");
+        $stmt->execute([$newName, $newDesc, $listId, $userId]);
 
-    header("Location: tasks.php");
-    exit();
+        header("Location: tasks.php");
+        exit();
+    } else {
+        $error = "Both name and description are required.";
+    }
 }
 ?>
 
 <!-- Edit form -->
-<form method="POST">
-    <input type="text" name="taskListName" value="<?= htmlspecialchars($taskList['TaskList_Name']) ?>" required>
-    <input type="text" name="taskListDesc" value="<?= htmlspecialchars($taskList['TaskList_Description']) ?>" required>
-    <button type="submit" name="updateTaskList">Save Changes</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Task</title>
+    <link rel="stylesheet" href="css/global.css">
+</head>
+<body>
+<header class="navbar">
+    <a href="dashboard.php" class="navbar_title2"><h1>taskly</h1></a>
+    <a class="navbar-index" href="logout.php">Log out</a>
+</header>
+
+<div class="container">
+
+<nav class="sidebar">
+        <div class="user-profile">
+            <a href="profile.php"><img src="images/Sample_User_Icon.png" alt="User"></a>
+            <h4><?php echo $_SESSION['User_Fname']; ?></h4>
+        </div>
+        <ul>
+            <li><a href="tasks.php">Tasks</a></li>
+            <li><a href="groups.php">Groups</a></li>
+        </ul>
+    </nav>
+
+    <h2>Edit Task List</h2>
+
+    <?php if (isset($error)) : ?>
+        <p style="color: red;"><?= htmlspecialchars($error) ?></p>
+    <?php endif; ?>
+
+    <form method="POST">
+        <input type="text" name="taskListName" value="<?= htmlspecialchars($taskList['TaskList_Name']) ?>" required><br>
+        <input type="text" name="taskListDesc" value="<?= htmlspecialchars($taskList['TaskList_Description']) ?>" required><br>
+        <button type="submit" name="updateTaskList">Save Changes</button>
+    </form>
+</body>
+</html>
