@@ -45,7 +45,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <div class="register-container">
         <div class="register-section">
             <h2 class="register-title">Register as Employee</h2>
-            <?= isset($error) ? "<p class='error-message'>" . htmlspecialchars($error) . "</p>" : "" ?>
             <form action="" method="POST" class="login-form">
                 <input type="text" name="first_name" placeholder="First Name*" required>
                 <input type="text" name="last_name" placeholder="Last Name*" required>

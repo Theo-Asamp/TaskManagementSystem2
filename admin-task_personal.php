@@ -13,7 +13,7 @@ if (isset($_POST['createTaskList'])) {
     $stmt = $conn->prepare("INSERT INTO Task_List (TaskList_Name, TaskList_Description, User_ID) VALUES (?, ?, ?)");
     $stmt->execute([$name, $desc, $userId]);
 
-    header("Location: tasks.php");
+    header("Location: admin-task_personal.php");
     exit();
 }
 
@@ -21,13 +21,13 @@ if (isset($_POST['createTaskList'])) {
 if (isset($_POST['createTask'])) {
     $name = $_POST['taskName'] ?? '';
     $desc = $_POST['taskDesc'] ?? '';
-    $deadline = $_POST['taskDeadline'] ?? ''; 
+    $deadline = $_POST['taskDeadline'] ?? '';
     $listId = $_POST['list_id'] ?? null;
 
     $stmt = $conn->prepare("INSERT INTO Task (Task_Title, Task_Description, Task_Deadline, List_ID) VALUES (?, ?, ?, ?)");
     $stmt->execute([$name, $desc, $deadline, $listId]); 
 
-    header("Location: tasks.php");
+    header("Location: admin-task_personal.php");
     exit();
 }
 
@@ -88,12 +88,13 @@ if ($taskLists) {
 <div class="container">
     <nav class="sidebar">
         <div class="user-profile">
-            <a href="profile.php"><img src="images/Sample_User_Icon.png" alt="User"></a>
+            <a href="admin-profile.php"><img src="images/Sample_User_Icon.png" alt="User"></a>
             <h4><?php echo $_SESSION['User_Fname']; ?></h4>
         </div>
         <ul>
-            <li><a href="tasks.php">Tasks</a></li>
-            <li><a href="groups.php">Groups</a></li>
+            <li><a href="admin-tasks.php">Manage Group Tasks</a></li>
+            <li><a href="admin-group.php">Manage Groups</a></li>
+            <li><a href="admin-task_personal.php">Manage Your tasks</a></li>
         </ul>
     </nav>
 
@@ -118,7 +119,7 @@ if ($taskLists) {
                             <p><?= htmlspecialchars($taskList['TaskList_Description']) ?></p>
 
                             <div class="tasklist-actions">
-                                <a href="edit_tasklist.php?list_id=<?= $taskList['List_ID'] ?>">Edit Task List</a>
+                                <a href="edit_tasklist-admin.php?list_id=<?= $taskList['List_ID'] ?>">Edit Task List</a>
                                 <form method="POST" class="add-tasklist_form">
                                     <input type="text" name="taskName" placeholder="Task Name" required>
                                     <input type="text" name="taskDesc" placeholder="Task Description" required>
@@ -127,7 +128,7 @@ if ($taskLists) {
                                     <button type="submit" name="createTask">Add Task</button>
                                 </form>
 
-                                <form method="POST" action="delete_tasklist.php" style="display:inline;">
+                                <form method="POST" action="delete_tasklist-admin.php" style="display:inline;">
                                     <input type="hidden" name="list_id" value="<?= $taskList['List_ID'] ?>">
                                     <button type="submit" onclick="return confirm('Delete this task list and all its tasks?')">Delete List</button>
                                 </form>
@@ -148,8 +149,8 @@ if ($taskLists) {
                                                     <p><strong>Deadline:</strong> <?= htmlspecialchars($task['Task_Deadline']) ?></p>
                                                 </span>
                                             </label>
-                                            <a href="edit_task.php?task_id=<?= $task['Task_ID'] ?>">Edit</a>
-                                            <a href="delete_task.php?task_id=<?= $task['Task_ID'] ?>" onclick="return confirm('Delete this task?')">Delete</a>
+                                            <a href="edit_task-admin.php?task_id=<?= $task['Task_ID'] ?>">Edit</a>
+                                            <a href="delete_task-adminp.php?task_id=<?= $task['Task_ID'] ?>" onclick="return confirm('Delete this task?')">Delete</a>
                                         </div>
                                     <?php endforeach; ?>
                                 <?php endif; ?>

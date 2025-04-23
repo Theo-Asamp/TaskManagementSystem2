@@ -2,86 +2,131 @@
 session_start();
 include('db.php');
 
-$userId = $_SESSION['user_id'] ?? null;
-$groupId = $_GET['group_id'] ?? null;
+// Set user ID (from session)
+$userId = $_SESSION['user_id'] ?? 1;
 
+if (!$userId) {
+    die("You must be logged in.");
+}
 
+// Get all available groups (for join dropdown)
+$allGroups = $conn->query("SELECT Group_ID, Group_Name FROM GroupTable")->fetchAll(PDO::FETCH_ASSOC);
 
-// Get group info
-$group = $conn->prepare("SELECT Group_Name FROM GroupTable WHERE Group_ID = ?");
-$group->execute([$groupId]);
-$groupName = $group->fetchColumn();
+// Get groups user is already in
+$groupStmt = $conn->prepare("
+    SELECT g.Group_ID, g.Group_Name 
+    FROM GroupTable g
+    JOIN User_Group ug ON g.Group_ID = ug.Group_ID
+    WHERE ug.User_ID = ?
+");
+$groupStmt->execute([$userId]);
+$userGroups = $groupStmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get tasks in this group
-$stmt = $conn->prepare("SELECT * FROM Group_Task WHERE GroupTask_ID = ?");
-$stmt->execute([$groupId]);
-$tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Get tasks by group (only for groups the user has joined)
+$tasksByGroup = [];
+if (!empty($userGroups)) {
+    foreach ($userGroups as $group) {
+        $taskStmt = $conn->prepare("SELECT * FROM Group_Task WHERE Group_ID = ?");
+        $taskStmt->execute([$group['Group_ID']]);
+        $tasks = $taskStmt->fetchAll(PDO::FETCH_ASSOC);
+        $tasksByGroup[$group['Group_Name']] = $tasks;
+    }
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title><?= htmlspecialchars($groupName) ?> - Group Tasks</title>
+    <title>Your Groups</title>
     <link rel="stylesheet" href="css/global.css">
 </head>
 <body>
-    <header class="navbar">
-        <a href="dashboard.php" class="navbar_title2"><h1>taskly</h1></a>
-        <a class="navbar-index" href="logout.php">Log out</a>
-    </header>
+<header class="navbar">
+    <a href="dashboard.php" class="navbar_title2"><h1>taskly</h1></a>
+    <a class="navbar-index" href="logout.php">Log out</a>
+</header>
 
-    <div class="container">
-        <nav class="sidebar">
-            <div class="user-profile">
-                <a href="profile.php"><img src="images/Sample_User_Icon.png" alt="User"></a>
-                <h4><?php echo $_SESSION['User_Fname']; ?></h4>
-            </div>
-            <ul>
-                <li><a href="tasks.php">Tasks</a></li>
-                <li><a href="groups.php">Groups</a></li>
-            </ul>
-        </nav>
+<div class="container">
+    <nav class="sidebar">
+        <div class="user-profile">
+            <a href="profile.php"><img src="images/Sample_User_Icon.png" alt="User"></a>
+            <h4><?php echo htmlspecialchars($_SESSION['User_Fname']); ?></h4>
+        </div>
+        <ul>
+            <li><a href="tasks.php">Tasks</a></li>
+            <li><a href="groups.php">Groups</a></li>
+        </ul>
+    </nav>
 
-        <section class="main-content">
-            <div class="home-box">
-                <h2>Tasks for <?= htmlspecialchars($groupName) ?></h2>
+    <section class="main-content">
+        <div class="main-content-container">
+            <h2>Join a Group</h2>
 
-                <?php if (!$tasks): ?>
-                    <p>No tasks in this group.</p>
-                <?php else: ?>
-                    <ul>
-                        <?php foreach ($tasks as $task): ?>
-                            <li>
-                                <h4><?= htmlspecialchars($task['Task_Title']) ?></h4>
-                                <p><?= htmlspecialchars($task['Task_Description']) ?></p>
-                                <p><strong>Deadline:</strong> <?= htmlspecialchars($task['Task_Deadline']) ?></p>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                <?php endif; ?>
-            </div>
-                <h3>Join a Group</h3>
-                <form method="POST" action="join-group.php">
-                <select name="group_id">
-                 <?php
-                $groups = $conn->query("SELECT * FROM GroupTable")->fetchAll(PDO::FETCH_ASSOC);
-                foreach ($groups as $group) {
-                    echo "<option value='{$group['Group_ID']}'>{$group['Group_Name']}</option>";
-                }
-                ?>
+            <!-- Join Group Form -->
+            <form method="POST" action="join-group.php">
+                <label for="group_id">Select a Group:</label>
+                <select name="group_id" id="group_id" required>
+                    <option value="" disabled selected>-- Choose a group --</option>
+                    <?php foreach ($allGroups as $group): ?>
+                        <?php
+                        $alreadyJoined = false;
+                        foreach ($userGroups as $joined) {
+                            if ($joined['Group_ID'] == $group['Group_ID']) {
+                                $alreadyJoined = true;
+                                break;
+                            }
+                        }
+                        if (!$alreadyJoined):
+                        ?>
+                            <option value="<?= $group['Group_ID'] ?>"><?= htmlspecialchars($group['Group_Name']) ?></option>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
                 </select>
-                <button type="submit" name="join_group">Join Group</button>
-                </form>
+                <button type="submit" name="join_group">Join</button>
+            </form>
 
-        </section>
-    </div>
+            <hr>
 
-    <footer class="footer">
-        <p class="footer__text">
-            <a href="#">About</a> | <a href="#">Privacy Policy</a> |
-            <a href="#">Terms of Use</a> | <a href="#">Contact Us</a>
-        </p>
-    </footer>
+            <h2>Your Group Tasks</h2>
+
+            <?php if (empty($userGroups)): ?>
+                <p>You haven't joined any groups yet. Join one to see tasks.</p>
+            <?php else: ?>
+                <?php foreach ($tasksByGroup as $groupName => $tasks): ?>
+                    <div class="group-panel">
+                        <h3><?= htmlspecialchars($groupName) ?></h3>
+
+                        <?php if (empty($tasks)): ?>
+                            <p>No tasks in this group.</p>
+                        <?php else: ?>
+                            <ul>
+                                <?php foreach ($tasks as $task): ?>
+                                    <li>
+                                        <h4><?= htmlspecialchars($task['GroupTask_Name']) ?></h4>
+                                        <p><?= htmlspecialchars($task['GroupTask_Description'] ?? 'No description.') ?></p>
+                                        <p><strong>Status:</strong> <?= htmlspecialchars($task['GroupTask_Status']) ?></p>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
+                        <form action="leave-group.php" method="POST">
+                            <input type="hidden" name="group_id" value="<?= $group['Group_ID'] ?>">
+                            <button type="submit" onclick="return confirm('Are you sure you want to leave this group?')">Leave Group</button>
+                        </form>
+
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+    </section>
+</div>
+
+<footer class="footer">
+    <p class="footer__text">
+        <a href="#">About</a> | <a href="#">Privacy Policy</a> |
+        <a href="#">Terms of Use</a> | <a href="#">Contact Us</a>
+    </p>
+</footer>
 </body>
 </html>

@@ -1,5 +1,10 @@
 <?php
 session_start(); // Start the session to access session variables
+include('db.php');
+
+// Set user ID (from session)
+$userId = $_SESSION['user_id'] ?? 1;
+
 if (!isset($_SESSION['User_Fname'])) {
     header("Location: login.php"); // Redirect to login if not logged in
     exit();

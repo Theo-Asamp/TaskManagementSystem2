@@ -1,5 +1,10 @@
 <?php
 session_start(); // Start the session to access session variables
+include('db.php');
+
+// Set user ID (from session)
+$userId = $_SESSION['user_id'] ?? 1;
+
 if (!isset($_SESSION['User_Fname'])) {
     header("Location: login.php"); // Redirect to login if not logged in
     exit();
@@ -30,8 +35,10 @@ $User_Fname = isset($_SESSION['User_Fname']) ? $_SESSION['User_Fname'] : 'Guest'
                 <p>Admin</p>
             </div>
             <ul>
-                <li><a href="admin-tasks.php"><i class="sidebar-texts"></i> <span>Manage Tasks</span></a></li> 
+                <li><a href="admin-tasks.php"><i class="sidebar-texts"></i> <span>Manage Group Tasks</span></a></li> 
                 <li><a href="admin-group.php"><i class="sidebar-text"></i> <span>Manage Groups</span></a></li>
+                <li><a href="admin-task_personal.php">Manage Your Tasks</a></li>
+
             </ul>
         </nav>
 

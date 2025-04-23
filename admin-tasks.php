@@ -10,10 +10,10 @@ if (isset($_POST['createGroup'])) {
     $name = $_POST['groupName'] ?? '';
 
     // Insert new group into the database
-    $stmt = $conn->prepare("INSERT INTO GroupTable (Group_Name, User_ID) VALUES (?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO GroupTable (Group_Name, User_ID) VALUES (?, ?)");
     $stmt->execute([$name, $userId]);
 
-    header("Location: admin-tasks.php"); // Redirect to manage tasks page after creating a group
+    header("Location: admin-tasks.php");
     exit();
 }
 
@@ -22,24 +22,21 @@ $stmt = $conn->prepare("SELECT Group_ID, Group_Name FROM GroupTable WHERE User_I
 $stmt->execute([$userId]);
 $groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get tasks for all groups (using GroupTask_ID from Group_Task table)
+// Get tasks for all groups including descriptions
 $allGroupTasks = [];
 if ($groups) {
-    // Fetch tasks for each group
     $stmt = $conn->prepare("
-        SELECT GroupTask_ID, GroupTask_Name, GroupTask_Status, Group_ID 
+        SELECT GroupTask_ID, GroupTask_Name, GroupTask_Status, GroupTask_Description, Group_ID 
         FROM Group_Task WHERE Group_ID IN (
             SELECT Group_ID FROM GroupTable WHERE User_ID = ?
         )
     ");
     $stmt->execute([$userId]);
-    
-    // Store tasks grouped by Group_ID
+
     while ($task = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $allGroupTasks[$task['Group_ID']][] = $task;
     }
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -62,47 +59,51 @@ if ($groups) {
             <h4><?php echo $_SESSION['User_Fname']; ?></h4>
         </div>
         <ul>
-            <li><a href="admin-tasks.php">Manage Tasks</a></li>
+            <li><a href="admin-tasks.php">Manage Group Tasks</a></li>
             <li><a href="admin-group.php">Manage Groups</a></li>
+            <li><a href="admin-task_personal.php">Manage Your tasks</a></li>
         </ul>
     </nav>
 
     <section class="task-content">
-        <div class="task-container">
-            <h2>Manage Groups</h2>
+    <div class="task-container">
+        <h2>Manage Groups</h2>
 
-            <div class="group-view">
-                <?php if (!$groups): ?>
-                    <p>No groups found.</p>
-                <?php else: ?>
-                    <?php foreach ($groups as $group): ?>
-                        <div class="group-item">
+        <div class="tasklist-view">
+            <?php if (!$groups): ?>
+                <p>No groups found.</p>
+            <?php else: ?>
+                <?php foreach ($groups as $group): ?>
+                    <div class="group-panel">
+                        <div class="group-header">
                             <h3><?= htmlspecialchars($group['Group_Name']) ?></h3>
+                        </div>
 
-                            <div class="group-actions">
-                                <a href="edit_group.php?group_id=<?= $group['Group_ID'] ?>">Edit Group</a>
-                            </div>
-
-                            <!-- Tasks under this group -->
-                            <div class="tasks-view">
-                                <?php if (!isset($allGroupTasks[$group['Group_ID']]) || empty($allGroupTasks[$group['Group_ID']])): ?>
-                                    <p>No tasks for this group.</p>
-                                <?php else: ?>
-                                    <?php foreach ($allGroupTasks[$group['Group_ID']] as $task): ?>
-                                        <div class="task-item">
+                        <div class="tasks-view">
+                            <?php if (empty($allGroupTasks[$group['Group_ID']])): ?>
+                                <p>No tasks for this group.</p>
+                            <?php else: ?>
+                                <?php foreach ($allGroupTasks[$group['Group_ID']] as $task): ?>
+                                    <div class="task-card">
+                                        <div class="task-info">
                                             <h4><?= htmlspecialchars($task['GroupTask_Name']) ?></h4>
                                             <p><strong>Status:</strong> <?= htmlspecialchars($task['GroupTask_Status']) ?></p>
-                                            <a href="edit_task.php?task_id=<?= $task['GroupTask_ID'] ?>">Edit</a>
-                                            <a href="delete_task.php?task_id=<?= $task['GroupTask_ID'] ?>" onclick="return confirm('Delete this task?')">Delete</a>
+                                            <p><strong>Description:</strong> <?= htmlspecialchars($task['GroupTask_Description'] ?? 'No description.') ?></p>
                                         </div>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </div>
+                                        <br>
+                                        <div class="task-actions">
+                                            <a href="edit_grouptask.php?task_id=<?= $task['GroupTask_ID'] ?>">Edit</a>
+                                            <a href="delete_grouptask.php?GroupTask_ID=<?= $task['GroupTask_ID'] ?>" onclick="return confirm('Delete this task?')">Delete</a>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
+    </div>
     </section>
 </div>
 

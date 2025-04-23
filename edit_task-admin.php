@@ -6,7 +6,7 @@ include('db.php');
 $userId = $_SESSION['user_id'] ?? 1;
 
 if (!isset($_GET['task_id'])) {
-    header("Location: tasks.php");
+    header("Location: admin-task_personal.php");
     exit();
 }
 
@@ -31,7 +31,7 @@ if (!$task) {
         $stmt = $conn->prepare("UPDATE Task SET Task_Title = ?, Task_Description = ?, Task_Deadline = ? WHERE Task_ID = ?");
         $stmt->execute([$title, $desc, $deadline, $taskId]);
 
-        header("Location: tasks.php");
+        header("Location: admin-task_personal.php");
         exit();
     }
 }
@@ -54,12 +54,13 @@ if (!$task) {
 
     <nav class="sidebar">
         <div class="user-profile">
-            <a href="profile.php"><img src="images/Sample_User_Icon.png" alt="User"></a>
+            <a href="admin-profile.php"><img src="images/Sample_User_Icon.png" alt="User"></a>
             <h4><?php echo $_SESSION['User_Fname']; ?></h4>
         </div>
         <ul>
-            <li><a href="tasks.php">Tasks</a></li>
-            <li><a href="groups.php">Groups</a></li>
+            <li><a href="admin-tasks.php">Manage Group Tasks</a></li>
+            <li><a href="admin-group.php">Manage Groups</a></li>
+            <li><a href="admin-task_personal.php">Manage Your tasks</a></li>
         </ul>
     </nav>
     <section class="main-content">
@@ -72,17 +73,17 @@ if (!$task) {
         <?php if ($task): ?>
             <form method="POST" class="edit-task-form">
                 <label>Task Title:</label>
-                <input type="text" name="taskTitle" value="<?= htmlspecialchars($task['Task_Title']) ?>" required>
+                <input type="text" name="taskTitle" value="<?= htmlspecialchars($task['Task_Title']) ?>" required><br>
 
                 <label>Task Description:</label>
-                <textarea name="taskDesc" required><?= htmlspecialchars($task['Task_Description']) ?></textarea>
+                <textarea name="taskDesc" required><?= htmlspecialchars($task['Task_Description']) ?></textarea><br>
 
                 <label>Deadline:</label>
-                <input type="date" name="taskDeadline" value="<?= htmlspecialchars($task['Task_Deadline']) ?>" required>
+                <input type="date" name="taskDeadline" value="<?= htmlspecialchars($task['Task_Deadline']) ?>" required><br>
 
                 <button type="submit">Save Changes</button>
                 <br>
-                <a href="tasks.php">Cancel</a>
+                <a href="admin-task_personal.php">Cancel</a>
             </form>
         <?php endif; ?>
         </div>

@@ -30,7 +30,7 @@ if (isset($_POST['updateTaskList'])) {
         $stmt = $conn->prepare("UPDATE Task_List SET TaskList_Name = ?, TaskList_Description = ? WHERE List_ID = ? AND User_ID = ?");
         $stmt->execute([$newName, $newDesc, $listId, $userId]);
 
-        header("Location: tasks.php");
+        header("Location: admin-task_personal.php");
         exit();
     } else {
         $error = "Both name and description are required.";
@@ -56,12 +56,13 @@ if (isset($_POST['updateTaskList'])) {
 
     <nav class="sidebar">
         <div class="user-profile">
-            <a href="profile.php"><img src="images/Sample_User_Icon.png" alt="User"></a>
+            <a href="admin-profile.php"><img src="images/Sample_User_Icon.png" alt="User"></a>
             <h4><?php echo $_SESSION['User_Fname']; ?></h4>
         </div>
         <ul>
-            <li><a href="tasks.php">Tasks</a></li>
-            <li><a href="groups.php">Groups</a></li>
+            <li><a href="admin-tasks.php">Manage Group Tasks</a></li>
+            <li><a href="admin-group.php">Manage Groups</a></li>
+            <li><a href="admin-task_personal.php">Manage Your tasks</a></li>
         </ul>
     </nav>
     <section class="main-content">
@@ -73,11 +74,13 @@ if (isset($_POST['updateTaskList'])) {
             <?php endif; ?>
 
             <form method="POST">
+                <label>Task Name:</label>
                 <input type="text" name="taskListName" value="<?= htmlspecialchars($taskList['TaskList_Name']) ?>" required><br>
+                <label>Task Description:</label>
                 <input type="text" name="taskListDesc" value="<?= htmlspecialchars($taskList['TaskList_Description']) ?>" required><br>
                 <button type="submit" name="updateTaskList">Save Changes</button>
                 <br>
-                <a href="tasks.php">Cancel</a>
+                <a href="admin-task_personal.php">Cancel</a>
             </form>
         </div>
     </section>
