@@ -199,14 +199,6 @@ body {
     box-sizing: border-box;
 }
 
-.btn {
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    width: 100%;
-}
 
 .btn--login {
     background-color: #7a35ea;
