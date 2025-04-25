@@ -99,7 +99,7 @@ if ($taskLists) {
 
     <section class="task-content">
         <div class="task-container">
-            <h2>My Task Lists</h2>
+            <h2>My Tasks</h2>
 
             <!-- Add Task List -->
             <form method="POST" class="add-tasklist_form">
