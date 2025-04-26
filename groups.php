@@ -2,9 +2,8 @@
 session_start();
 include('db.php');
 
-// Set user ID (from session)
-$userId = $_SESSION['user_id'] ?? 1;
-
+// Check if logged in
+$userId = $_SESSION['User_ID'] ?? null;
 if (!$userId) {
     die("You must be logged in.");
 }
@@ -22,14 +21,18 @@ $groupStmt = $conn->prepare("
 $groupStmt->execute([$userId]);
 $userGroups = $groupStmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get tasks by group (only for groups the user has joined)
+// Get tasks for groups user joined
 $tasksByGroup = [];
 if (!empty($userGroups)) {
     foreach ($userGroups as $group) {
         $taskStmt = $conn->prepare("SELECT * FROM Group_Task WHERE Group_ID = ?");
         $taskStmt->execute([$group['Group_ID']]);
         $tasks = $taskStmt->fetchAll(PDO::FETCH_ASSOC);
-        $tasksByGroup[$group['Group_Name']] = $tasks;
+
+        $tasksByGroup[$group['Group_ID']] = [
+            'name' => $group['Group_Name'],
+            'tasks' => $tasks
+        ];
     }
 }
 ?>
@@ -90,18 +93,18 @@ if (!empty($userGroups)) {
 
             <h2>Your Group Tasks</h2>
 
-            <?php if (empty($userGroups)): ?>
+            <?php if (empty($tasksByGroup)): ?>
                 <p>You haven't joined any groups yet. Join one to see tasks.</p>
             <?php else: ?>
-                <?php foreach ($tasksByGroup as $groupName => $tasks): ?>
+                <?php foreach ($tasksByGroup as $groupId => $groupData): ?>
                     <div class="group-panel">
-                        <h3><?= htmlspecialchars($groupName) ?></h3>
+                        <h3><?= htmlspecialchars($groupData['name']) ?></h3>
 
-                        <?php if (empty($tasks)): ?>
+                        <?php if (empty($groupData['tasks'])): ?>
                             <p>No tasks in this group.</p>
                         <?php else: ?>
                             <ul>
-                                <?php foreach ($tasks as $task): ?>
+                                <?php foreach ($groupData['tasks'] as $task): ?>
                                     <li>
                                         <h4><?= htmlspecialchars($task['GroupTask_Name']) ?></h4>
                                         <p><?= htmlspecialchars($task['GroupTask_Description'] ?? 'No description.') ?></p>
@@ -110,8 +113,9 @@ if (!empty($userGroups)) {
                                 <?php endforeach; ?>
                             </ul>
                         <?php endif; ?>
-                        <form action="leave-group.php" method="POST">
-                            <input type="hidden" name="group_id" value="<?= $group['Group_ID'] ?>">
+
+                        <form action="leave-group.php" method="POST" style="margin-top:10px;">
+                            <input type="hidden" name="group_id" value="<?= $groupId ?>">
                             <button type="submit" onclick="return confirm('Are you sure you want to leave this group?')">Leave Group</button>
                         </form>
 
